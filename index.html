@@ -1,1 +1,6391 @@
+<!DOCTYPE html>
+<html lang="ceb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>NIHS ZOMBIE APOCALYPSE</title>
 
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+button{
+  font-family:inherit;
+  cursor:pointer;
+}
+
+.screen{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.screen.active{
+  display:flex;
+}
+
+#intro{
+  background:#000;
+  z-index:1000;
+  flex-direction:column;
+  text-align:center;
+  padding:20px;
+}
+
+.introItem{
+  opacity:0;
+  transition:opacity 1.2s ease;
+  max-width:900px;
+}
+
+.introItem.show{
+  opacity:1;
+}
+
+.introLogo{
+  width:min(230px,55vw);
+  aspect-ratio:1;
+  object-fit:contain;
+  border-radius:50%;
+  filter:drop-shadow(0 0 25px #7b2cff);
+}
+
+.introTitle{
+  font-size:clamp(24px,6vw,60px);
+  font-weight:900;
+  color:#b875ff;
+  text-shadow:0 0 15px #6d1cff;
+  line-height:1.15;
+}
+
+.introDeveloper{
+  font-size:clamp(20px,5vw,42px);
+  line-height:1.4;
+  font-weight:bold;
+}
+
+.introWarning{
+  color:#ff4444;
+  font-size:clamp(18px,4vw,34px);
+  font-weight:900;
+  line-height:1.35;
+  text-shadow:0 0 10px #900;
+}
+
+.logoBlood{
+  position:relative;
+}
+
+.logoBlood::after{
+  content:"";
+  position:absolute;
+  inset:10% 25% 0;
+  background:linear-gradient(#ff1c1c,#690000);
+  opacity:.45;
+  clip-path:polygon(
+    30% 0,
+    38% 30%,
+    48% 12%,
+    55% 45%,
+    67% 18%,
+    72% 100%,
+    25% 100%
+  );
+  pointer-events:none;
+}
+
+.logoName{
+  margin-top:15px;
+  font-weight:900;
+  font-size:clamp(22px,5vw,45px);
+  color:#fff;
+  text-shadow:0 0 12px #8d25ff;
+}
+
+.mainPanel{
+  width:min(850px,92vw);
+  max-height:92vh;
+  overflow:auto;
+  padding:30px;
+  border:2px solid #8f35ff;
+  border-radius:25px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20,8,35,.96),
+      rgba(49,13,77,.96)
+    );
+  box-shadow:0 0 40px rgba(132,35,255,.35);
+  text-align:center;
+}
+
+.logo{
+  width:min(190px,42vw);
+  border-radius:50%;
+  margin-bottom:15px;
+  filter:drop-shadow(0 0 18px #7629ff);
+}
+
+h1{
+  color:#c58cff;
+  font-size:clamp(28px,6vw,55px);
+  margin-bottom:12px;
+}
+
+h2{
+  margin-bottom:20px;
+  color:#e0c7ff;
+}
+
+.btn{
+  width:min(430px,90%);
+  margin:8px auto;
+  display:block;
+  padding:15px 20px;
+  border:2px solid #a94cff;
+  border-radius:14px;
+  color:white;
+  background:linear-gradient(135deg,#4a1680,#791fd0);
+  font-size:19px;
+  font-weight:900;
+  box-shadow:0 5px 15px rgba(0,0,0,.35);
+}
+
+.btn:active{
+  transform:scale(.97);
+}
+
+.btn.green{
+  background:linear-gradient(135deg,#075c43,#0c9971);
+}
+
+.btn.red{
+  background:linear-gradient(135deg,#651414,#bb2727);
+}
+
+.btn.blue{
+  background:linear-gradient(135deg,#123d78,#2679db);
+}
+
+.smallBtn{
+  padding:10px 16px;
+  border-radius:12px;
+  border:1px solid #b35cff;
+  background:#32104e;
+  color:white;
+  font-weight:bold;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* START */
+
+#startScreen{
+  background:
+    radial-gradient(
+      circle at center,
+      #421478 0,
+      #13051f 45%,
+      #030006 100%
+    );
+  text-align:center;
+}
+
+.startTitle{
+  font-size:clamp(34px,8vw,78px);
+  font-weight:1000;
+  color:#d39aff;
+  text-shadow:0 0 20px #802cff;
+  margin-bottom:25px;
+}
+
+/* SETUP */
+
+#setupScreen{
+  background:
+    linear-gradient(
+      135deg,
+      #12041c,
+      #32104e,
+      #09020f
+    );
+}
+
+.choiceGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:10px;
+  margin:15px 0;
+}
+
+.choice{
+  min-height:58px;
+  padding:12px;
+  border:2px solid #6c2aa3;
+  background:#1b0b29;
+  color:#ddd;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+.choice.selected{
+  background:#7828c8;
+  border-color:#d09aff;
+  box-shadow:0 0 15px #8c30df;
+  color:#fff;
+}
+
+/* CHARACTER SELECT */
+
+#characterScreen{
+  background:
+    linear-gradient(
+      135deg,
+      #08030e,
+      #28103d,
+      #0c0613
+    );
+}
+
+.characterLayout{
+  width:min(1100px,96vw);
+  height:min(88vh,700px);
+  display:grid;
+  grid-template-columns:42% 58%;
+  gap:18px;
+}
+
+.previewPanel,
+.characterListPanel{
+  border:2px solid #8537bc;
+  border-radius:22px;
+  background:rgba(22,8,34,.95);
+  padding:18px;
+}
+
+.previewPanel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.characterName{
+  color:#d29aff;
+  font-size:clamp(20px,4vw,34px);
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.characterType{
+  color:#bbb;
+  margin-bottom:10px;
+}
+
+.character{
+  position:relative;
+  width:170px;
+  height:310px;
+  margin:8px auto 15px;
+}
+
+.charHair{
+  position:absolute;
+  width:100px;
+  height:85px;
+  left:35px;
+  top:12px;
+  background:#151515;
+  border-radius:50% 50% 42% 42%;
+  z-index:4;
+}
+
+.charHead{
+  position:absolute;
+  width:78px;
+  height:90px;
+  left:46px;
+  top:35px;
+  background:#f0b78d;
+  border-radius:42% 42% 48% 48%;
+  z-index:3;
+}
+
+.charEye{
+  position:absolute;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#111;
+  top:73px;
+  z-index:5;
+}
+
+.eyeL{
+  left:65px;
+}
+
+.eyeR{
+  left:98px;
+}
+
+.charMouth{
+  position:absolute;
+  width:25px;
+  height:7px;
+  left:73px;
+  top:103px;
+  border-bottom:3px solid #521c1c;
+  border-radius:50%;
+  z-index:5;
+}
+
+.charBody{
+  position:absolute;
+  width:105px;
+  height:125px;
+  left:32px;
+  top:120px;
+  background:#376dff;
+  border-radius:22px 22px 12px 12px;
+  z-index:2;
+}
+
+.charArm{
+  position:absolute;
+  width:27px;
+  height:105px;
+  top:132px;
+  border-radius:18px;
+  background:#f0b78d;
+  z-index:1;
+}
+
+.armL{
+  left:12px;
+  transform:rotate(8deg);
+}
+
+.armR{
+  right:12px;
+  transform:rotate(-8deg);
+}
+
+.charPants{
+  position:absolute;
+  width:100px;
+  height:75px;
+  left:35px;
+  top:238px;
+  background:#222b45;
+  border-radius:8px;
+  z-index:1;
+}
+
+.charShoe{
+  position:absolute;
+  width:55px;
+  height:23px;
+  background:#111;
+  border-radius:12px;
+  top:286px;
+  z-index:2;
+}
+
+.shoeL{
+  left:27px;
+}
+
+.shoeR{
+  right:27px;
+}
+
+.charAccessory{
+  position:absolute;
+  z-index:7;
+}
+
+.char-glasses .charAccessory{
+  width:68px;
+  height:20px;
+  left:51px;
+  top:69px;
+  border-top:4px solid #111;
+}
+
+.char-cap .charAccessory{
+  width:92px;
+  height:25px;
+  left:39px;
+  top:20px;
+  background:#333;
+  border-radius:50% 50% 10% 10%;
+}
+
+.characterList{
+  height:calc(100% - 85px);
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(125px,1fr));
+  gap:8px;
+}
+
+.charBtn{
+  min-height:60px;
+  border:1px solid #63298a;
+  background:#170b22;
+  color:#eee;
+  border-radius:11px;
+  padding:8px;
+  font-weight:bold;
+}
+
+.charBtn.selected{
+  background:#792cc0;
+  border-color:#e0b0ff;
+}
+
+/* MODE */
+
+#modeScreen{
+  background:
+    linear-gradient(
+      135deg,
+      #10051a,
+      #35104e
+    );
+}
+
+/* SETTINGS */
+
+#settingsScreen{
+  background:#09020f;
+}
+
+.settingRow{
+  margin:20px auto;
+  max-width:600px;
+  padding:15px;
+  border-radius:15px;
+  background:#180b25;
+  border:1px solid #62317f;
+}
+
+input[type=range]{
+  width:100%;
+  accent-color:#a43dff;
+}
+
+/* SHOP */
+
+#shopScreen{
+  background:
+    linear-gradient(
+      135deg,
+      #100619,
+      #35144b
+    );
+}
+
+.shopCoins{
+  color:#ffd45e;
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.shopGrid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+  max-height:60vh;
+  overflow:auto;
+}
+
+.shopItem{
+  background:#190b27;
+  border:1px solid #713b91;
+  border-radius:15px;
+  padding:15px;
+}
+
+.shopItem h3{
+  color:#cf9aff;
+  margin-bottom:7px;
+}
+
+.shopItem p{
+  color:#bbb;
+  margin:4px 0;
+}
+
+/* GAME */
+
+#gameScreen{
+  background:#090909;
+  align-items:stretch;
+  justify-content:stretch;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
+}
+
+.hud{
+  position:absolute;
+  left:12px;
+  top:10px;
+  z-index:20;
+  min-width:180px;
+  padding:10px;
+  border-radius:13px;
+  background:rgba(0,0,0,.62);
+  border:1px solid rgba(255,255,255,.2);
+  pointer-events:none;
+}
+
+.hpBar{
+  width:180px;
+  height:16px;
+  border-radius:10px;
+  background:#381010;
+  overflow:hidden;
+  margin:5px 0;
+}
+
+.hpFill{
+  height:100%;
+  width:100%;
+  background:#27d66c;
+  transition:width .15s;
+}
+
+.hudLine{
+  font-size:13px;
+  margin:3px 0;
+}
+
+.pauseBtn{
+  position:absolute;
+  right:12px;
+  top:12px;
+  z-index:30;
+  padding:10px 16px;
+  border-radius:12px;
+  border:1px solid #b96cff;
+  background:rgba(25,5,40,.85);
+  color:white;
+  font-weight:bold;
+}
+
+.controls{
+  position:absolute;
+  inset:0;
+  z-index:15;
+  pointer-events:none;
+}
+
+.joystick{
+  position:absolute;
+  bottom:28px;
+  width:145px;
+  height:145px;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  border:2px solid rgba(255,255,255,.22);
+  pointer-events:auto;
+  touch-action:none;
+}
+
+#moveJoy{
+  left:25px;
+}
+
+#attackJoy{
+  right:25px;
+}
+
+.stick{
+  position:absolute;
+  width:65px;
+  height:65px;
+  left:40px;
+  top:40px;
+  border-radius:50%;
+  background:rgba(161,65,255,.75);
+  border:2px solid #d4a0ff;
+  box-shadow:0 0 15px rgba(145,50,255,.5);
+  will-change:transform;
+}
+
+.weaponBtn{
+  position:absolute;
+  right:195px;
+  bottom:50px;
+  pointer-events:auto;
+  background:#35104f;
+  border:1px solid #a652dc;
+  color:#fff;
+  padding:12px;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+.interactBtn{
+  position:absolute;
+  right:195px;
+  bottom:105px;
+  pointer-events:auto;
+  background:#113d34;
+  border:1px solid #36c5a2;
+  color:#fff;
+  padding:10px;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+#levelBanner{
+  position:absolute;
+  left:50%;
+  top:15%;
+  transform:translateX(-50%);
+  z-index:40;
+  font-size:clamp(24px,6vw,55px);
+  font-weight:900;
+  text-align:center;
+  color:#e3baff;
+  text-shadow:0 0 15px #7928ff;
+  opacity:0;
+  transition:opacity .4s;
+  pointer-events:none;
+}
+
+#levelBanner.show{
+  opacity:1;
+}
+
+/* PAUSE */
+
+#pauseScreen{
+  background:rgba(0,0,0,.82);
+  z-index:100;
+}
+
+.pausePanel{
+  width:min(500px,90vw);
+  padding:25px;
+  background:#180821;
+  border:2px solid #8e39c6;
+  border-radius:20px;
+  text-align:center;
+}
+
+/* VIDEO */
+
+#videoScreen{
+  background:#050505;
+  z-index:500;
+  flex-direction:column;
+}
+
+.videoBox{
+  width:min(850px,90vw);
+  height:min(65vh,500px);
+  background:#111;
+  border:2px solid #8036aa;
+  border-radius:18px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#gameVideo{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.videoText{
+  margin-top:12px;
+  font-weight:bold;
+  color:#d9b3ff;
+}
+
+/* RESULT */
+
+#resultScreen{
+  background:
+    radial-gradient(
+      circle,
+      #401040,
+      #080108
+    );
+  text-align:center;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+
+  .characterLayout{
+    grid-template-columns:38% 62%;
+    height:92vh;
+  }
+
+  .character{
+    transform:scale(.78);
+    margin-top:-10px;
+    margin-bottom:-25px;
+  }
+
+  .characterList{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .previewPanel{
+    padding:8px;
+  }
+
+  .joystick{
+    width:125px;
+    height:125px;
+    bottom:18px;
+  }
+
+  #moveJoy{
+    left:12px;
+  }
+
+  #attackJoy{
+    right:12px;
+  }
+
+  .stick{
+    width:57px;
+    height:57px;
+    left:32px;
+    top:32px;
+  }
+
+  .weaponBtn{
+    right:145px;
+    bottom:28px;
+  }
+
+  .interactBtn{
+    right:145px;
+    bottom:82px;
+  }
+}
+
+@media(max-height:500px){
+
+  .joystick{
+    width:105px;
+    height:105px;
+  }
+
+  .stick{
+    width:50px;
+    height:50px;
+    left:26px;
+    top:26px;
+  }
+
+  .weaponBtn{
+    bottom:15px;
+  }
+
+  .interactBtn{
+    bottom:65px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+
+<section id="intro" class="screen active">
+
+  <div id="introItem" class="introItem">
+
+    <img
+      id="introLogo"
+      class="introLogo"
+      src="nihs-logo.png"
+      alt="NIHS"
+    >
+
+  </div>
+
+</section>
+
+<!-- START -->
+
+<section id="startScreen" class="screen">
+
+  <div>
+
+    <img
+      class="logo"
+      src="nihs-logo.png"
+      alt="NIHS"
+    >
+
+    <div class="startTitle">
+      NIHS ZOMBIE<br>
+      APOCALYPSE
+    </div>
+
+    <button
+      class="btn green"
+      onclick="startGame()"
+    >
+      SUGDI
+    </button>
+
+  </div>
+
+</section>
+
+<!-- HOME -->
+
+<section id="homeScreen" class="screen">
+
+  <div class="mainPanel">
+
+    <img
+      class="logo"
+      src="nihs-logo.png"
+      alt="NIHS"
+    >
+
+    <h1>
+      NIHS ZOMBIE APOCALYPSE
+    </h1>
+
+    <button
+      class="btn"
+      onclick="openSetup()"
+    >
+      DUWA
+    </button>
+
+    <button
+      class="btn"
+      onclick="openSettings()"
+    >
+      MGA SETTING
+    </button>
+
+    <button
+      class="btn"
+      onclick="openShop()"
+    >
+      TINDAHAN
+    </button>
+
+  </div>
+
+</section>
+
+<!-- SETUP -->
+
+<section id="setupScreen" class="screen">
+
+  <div class="mainPanel">
+
+    <h1>PAGPILI SA PLAYER</h1>
+
+    <h2>Kinsa ka?</h2>
+
+    <div class="choiceGrid">
+
+      <button
+        class="choice"
+        data-group="role"
+        data-value="student"
+        onclick="selectSetup('role','student')"
+      >
+        ESTUDYANTE
+      </button>
+
+      <button
+        class="choice"
+        data-group="role"
+        data-value="teacher"
+        onclick="selectSetup('role','teacher')"
+      >
+        MAGTUTUDLO
+      </button>
+
+    </div>
+
+    <h2>Grade</h2>
+
+    <div
+      class="choiceGrid"
+      id="gradeChoices"
+    >
+
+      <button
+        class="choice"
+        data-group="grade"
+        data-value="7"
+        onclick="selectSetup('grade','7')"
+      >
+        GRADE 7
+      </button>
+
+      <button
+        class="choice"
+        data-group="grade"
+        data-value="8"
+        onclick="selectSetup('grade','8')"
+      >
+        GRADE 8
+      </button>
+
+      <button
+        class="choice"
+        data-group="grade"
+        data-value="9"
+        onclick="selectSetup('grade','9')"
+      >
+        GRADE 9
+      </button>
+
+      <button
+        class="choice"
+        data-group="grade"
+        data-value="10"
+        onclick="selectSetup('grade','10')"
+      >
+        GRADE 10
+      </button>
+
+      <button
+        class="choice"
+        data-group="grade"
+        data-value="11"
+        onclick="selectSetup('grade','11')"
+      >
+        GRADE 11
+      </button>
+
+      <button
+        class="choice"
+        data-group="grade"
+        data-value="12"
+        onclick="selectSetup('grade','12')"
+      >
+        GRADE 12
+      </button>
+
+    </div>
+
+    <h2>Gender</h2>
+
+    <div class="choiceGrid">
+
+      <button
+        class="choice"
+        data-group="gender"
+        data-value="male"
+        onclick="selectSetup('gender','male')"
+      >
+        LALAKI
+      </button>
+
+      <button
+        class="choice"
+        data-group="gender"
+        data-value="female"
+        onclick="selectSetup('gender','female')"
+      >
+        BABAYE
+      </button>
+
+    </div>
+
+    <button
+      class="btn"
+      onclick="openCharacters()"
+    >
+      PADAYON
+    </button>
+
+    <button
+      class="btn red"
+      onclick="showScreen('homeScreen')"
+    >
+      BALIK
+    </button>
+
+  </div>
+
+</section>
+
+<!-- CHARACTER -->
+
+<section id="characterScreen" class="screen">
+
+  <div class="characterLayout">
+
+    <div class="previewPanel">
+
+      <div
+        class="characterName"
+        id="selectedCharacterName"
+      >
+        PILI UNA
+      </div>
+
+      <div
+        class="characterType"
+        id="selectedCharacterType"
+      >
+        -
+      </div>
+
+      <div
+        id="characterPreview"
+        class="character"
+      >
+
+        <div class="charHair"></div>
+
+        <div class="charHead"></div>
+
+        <div class="charEye eyeL"></div>
+
+        <div class="charEye eyeR"></div>
+
+        <div class="charMouth"></div>
+
+        <div class="charBody"></div>
+
+        <div class="charArm armL"></div>
+
+        <div class="charArm armR"></div>
+
+        <div class="charPants"></div>
+
+        <div class="charShoe shoeL"></div>
+
+        <div class="charShoe shoeR"></div>
+
+        <div class="charAccessory"></div>
+
+      </div>
+
+      <button
+        class="btn"
+        onclick="openMode()"
+      >
+        PADAYON
+      </button>
+
+      <button
+        class="btn red"
+        onclick="showScreen('setupScreen')"
+      >
+        BALIK
+      </button>
+
+    </div>
+
+    <div class="characterListPanel">
+
+      <h2>PILI UG KARAKTER</h2>
+
+      <div
+        class="characterList"
+        id="characterList"
+      ></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- MODE -->
+
+<section id="modeScreen" class="screen">
+
+  <div class="mainPanel">
+
+    <h1>PILI UG MODE</h1>
+
+    <h2 id="modeCharacterText"></h2>
+
+    <button
+      class="btn green"
+      onclick="chooseMode('human')"
+    >
+      TAO<br>
+      <small>GAMIT UG ARMAS</small>
+    </button>
+
+    <button
+      class="btn red"
+      onclick="chooseMode('zombie')"
+    >
+      ZOMBIE<br>
+      <small>BITE LANG</small>
+    </button>
+
+    <button
+      class="btn"
+      onclick="showScreen('characterScreen')"
+    >
+      BALIK
+    </button>
+
+  </div>
+
+</section>
+
+<!-- SETTINGS -->
+
+<section id="settingsScreen" class="screen">
+
+  <div class="mainPanel">
+
+    <h1>MGA SETTING</h1>
+
+    <div class="settingRow">
+
+      <h3>MASTER VOLUME</h3>
+
+      <input
+        id="volumeSlider"
+        type="range"
+        min="0"
+        max="1"
+        step=".01"
+        value=".7"
+        oninput="changeVolume(this.value)"
+      >
+
+    </div>
+
+    <div class="settingRow">
+
+      <button
+        id="musicBtn"
+        class="btn"
+        onclick="toggleMusic()"
+      >
+        MUSIC: ON
+      </button>
+
+      <button
+        id="sfxBtn"
+        class="btn"
+        onclick="toggleSfx()"
+      >
+        SFX: ON
+      </button>
+
+      <button
+        id="muteBtn"
+        class="btn red"
+        onclick="toggleMute()"
+      >
+        MUTE ALL
+      </button>
+
+    </div>
+
+    <button
+      class="btn red"
+      onclick="returnFromSettings()"
+    >
+      BALIK
+    </button>
+
+  </div>
+
+</section>
+
+<!-- SHOP -->
+
+<section id="shopScreen" class="screen">
+
+  <div class="mainPanel">
+
+    <h1>TINDAHAN</h1>
+
+    <div class="shopCoins">
+      🪙 COINS:
+      <span id="shopCoins">0</span>
+    </div>
+
+    <div
+      class="shopGrid"
+      id="shopGrid"
+    ></div>
+
+    <button
+      class="btn red"
+      onclick="showScreen('homeScreen')"
+    >
+      BALIK
+    </button>
+
+  </div>
+
+</section>
+
+<!-- GAME -->
+
+<section id="gameScreen" class="screen">
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="hud">
+
+    <div class="hudLine">
+      ❤️ HP:
+      <span id="hpText">100</span>
+    </div>
+
+    <div class="hpBar">
+
+      <div
+        class="hpFill"
+        id="hpFill"
+      ></div>
+
+    </div>
+
+    <div class="hudLine">
+      🏫 ROOM:
+      <span id="roomText">1</span>/6
+    </div>
+
+    <div class="hudLine">
+      🧟 ZOMBIE:
+      <span id="enemyText">0</span>
+    </div>
+
+    <div class="hudLine">
+      ⭐ SCORE:
+      <span id="scoreText">0</span>
+    </div>
+
+    <div class="hudLine">
+      🪙 COINS:
+      <span id="coinText">0</span>
+    </div>
+
+    <div class="hudLine">
+      🔨
+      <span id="weaponText">CHALK</span>
+    </div>
+
+  </div>
+
+  <button
+    class="pauseBtn"
+    onclick="pauseGame()"
+  >
+    PAUSE
+  </button>
+
+  <div id="levelBanner">
+    ROOM 1
+  </div>
+
+  <div class="controls">
+
+    <div
+      id="moveJoy"
+      class="joystick"
+    >
+      <div class="stick"></div>
+    </div>
+
+    <div
+      id="attackJoy"
+      class="joystick"
+    >
+      <div class="stick"></div>
+    </div>
+
+    <button
+      class="weaponBtn"
+      onclick="switchWeapon()"
+    >
+      ARMAS
+    </button>
+
+    <button
+      class="interactBtn"
+      onclick="interact()"
+    >
+      ACTION
+    </button>
+
+  </div>
+
+</section>
+
+<!-- PAUSE -->
+
+<section id="pauseScreen" class="screen">
+
+  <div class="pausePanel">
+
+    <h1>PAUSE</h1>
+
+    <button
+      class="btn green"
+      onclick="resumeGame()"
+    >
+      PADAYON
+    </button>
+
+    <button
+      class="btn"
+      onclick="openSettingsFromPause()"
+    >
+      MGA SETTING
+    </button>
+
+    <button
+      class="btn red"
+      onclick="exitGame()"
+    >
+      GAWAS
+    </button>
+
+  </div>
+
+</section>
+
+<!-- VIDEO -->
+
+<section id="videoScreen" class="screen">
+
+  <div class="videoBox">
+
+    <video
+      id="gameVideo"
+      playsinline
+      preload="auto"
+    ></video>
+
+  </div>
+
+  <div
+    class="videoText"
+    id="videoText"
+  >
+    PADAYON...
+  </div>
+
+</section>
+
+<!-- RESULT -->
+
+<section id="resultScreen" class="screen">
+
+  <div class="mainPanel">
+
+    <h1 id="resultTitle">
+      GAME OVER
+    </h1>
+
+    <h2 id="resultText"></h2>
+
+    <button
+      class="btn green"
+      onclick="restartGame()"
+    >
+      DUWA PAG-USAB
+    </button>
+
+    <button
+      class="btn"
+      onclick="showScreen('homeScreen')"
+    >
+      HOME
+    </button>
+
+  </div>
+
+</section>
+
+<audio
+  id="music"
+  src="background-music.mp3"
+  loop
+  preload="auto"
+></audio>
+
+<audio
+  id="yawa"
+  src="yawa.mp3"
+  preload="auto"
+></audio>
+
+<script>
+
+/* =========================================================
+   NIHS ZOMBIE APOCALYPSE
+   CORRECTED SINGLE FILE
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+const canvas = $("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let W = innerWidth;
+let H = innerHeight;
+
+let animationId = null;
+let lastTime = 0;
+
+const saveKey = "NIHS_ZOMBIE_SAVE_V1";
+
+let saveData = {
+  coins:0,
+  bestScore:0,
+  owned:["chalk"],
+  equipped:"chalk"
+};
+
+try{
+
+  const old =
+    JSON.parse(localStorage.getItem(saveKey));
+
+  if(old){
+    saveData = {
+      ...saveData,
+      ...old
+    };
+  }
+
+}catch(e){}
+
+const settings = {
+  volume:.7,
+  music:true,
+  sfx:true,
+  mute:false
+};
+
+let setup = {
+  role:"",
+  grade:"",
+  gender:""
+};
+
+let selectedCharacter = null;
+let selectedMode = "human";
+
+let settingsReturnScreen = "homeScreen";
+
+let game = {
+
+  running:false,
+  paused:false,
+
+  room:1,
+
+  score:0,
+  coins:0,
+
+  hp:100,
+  maxHp:100,
+
+  player:{
+    x:0,
+    y:0,
+    r:22,
+    speed:220,
+    angle:0,
+    inv:0
+  },
+
+  enemies:[],
+  particles:[],
+  damageTexts:[],
+  objects:[],
+
+  spawnTimer:0,
+  attackTimer:0,
+  healTimer:0,
+  yawaTimer:0,
+
+  roomCleared:false,
+  transitioning:false,
+
+  weaponIndex:0,
+
+  combo:0,
+  lastHit:0,
+
+  videoShowing:false,
+  resultSaved:false
+};
+
+const weapons = [
+
+  {
+    id:"chalk",
+    name:"CHALK",
+    damage:5,
+    range:170,
+    speed:.38,
+    knock:20,
+    price:0
+  },
+
+  {
+    id:"shenelas",
+    name:"SHENELAS",
+    damage:8,
+    range:145,
+    speed:.55,
+    knock:25,
+    price:40
+  },
+
+  {
+    id:"stone",
+    name:"STONE",
+    damage:12,
+    range:175,
+    speed:.65,
+    knock:32,
+    price:75
+  },
+
+  {
+    id:"book",
+    name:"BOOK",
+    damage:15,
+    range:155,
+    speed:.72,
+    knock:35,
+    price:110
+  },
+
+  {
+    id:"backpack",
+    name:"BACKPACK",
+    damage:18,
+    range:140,
+    speed:.85,
+    knock:42,
+    price:150
+  },
+
+  {
+    id:"laptop",
+    name:"LAPTOP",
+    damage:25,
+    range:180,
+    speed:1.0,
+    knock:50,
+    price:220
+  },
+
+  {
+    id:"chair",
+    name:"CHAIR",
+    damage:30,
+    range:130,
+    speed:1.25,
+    knock:65,
+    price:300
+  }
+
+];
+
+const characters = {
+
+  "7":{
+    male:[
+      "Steve",
+      "Cyber",
+      "C"
+    ],
+    female:[
+      "J",
+      "Inday J",
+      "A"
+    ]
+  },
+
+  "8":{
+    male:[
+      "Nygien",
+      "Boss H",
+      "Dodong O"
+    ],
+    female:[
+      "Xyhh",
+      "Ash",
+      "Mitch",
+      "Hyris",
+      "C",
+      "D",
+      "J"
+    ]
+  },
+
+  "9":{
+    male:[
+      "Boss J",
+      "Boss R",
+      "Dodong"
+    ],
+    female:[
+      "Inday Y",
+      "Miss H",
+      "V"
+    ]
+  },
+
+  "10":{
+    male:[
+      "John Reynard",
+      "Kenth Clark",
+      "Carl",
+      "Archel",
+      "Rhey",
+      "Johnson",
+      "Cristian",
+      "Rhamces",
+      "Jester",
+      "Julius",
+      "Archgel",
+      "Rencey",
+      "Elm",
+      "SHR",
+      "Rex"
+    ],
+    female:[
+      "A",
+      "S",
+      "M",
+      "J",
+      "I",
+      "D"
+    ]
+  },
+
+  "11":{
+    male:[
+      "A",
+      "C",
+      "R"
+    ],
+    female:[
+      "M",
+      "D",
+      "J",
+      "R"
+    ]
+  },
+
+  "12":{
+    male:[
+      "ARV",
+      "S",
+      "T",
+      "D"
+    ],
+    female:[]
+  }
+
+};
+
+const teachers = {
+
+  male:[
+    "Sir J"
+  ],
+
+  female:[
+    "Maam J",
+    "Maam M",
+    "Maam JU",
+    "Maam T",
+    "Maam N",
+    "Maam P",
+    "Maam M",
+    "Maam MJ"
+  ]
+
+};
+
+/* =========================================================
+   SCREEN SYSTEM
+========================================================= */
+
+function showScreen(id){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(s=>{
+      s.classList.remove("active");
+    });
+
+  const target = $(id);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+}
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function save(){
+
+  try{
+    localStorage.setItem(
+      saveKey,
+      JSON.stringify(saveData)
+    );
+  }catch(e){}
+
+}
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+function unlockAudio(){
+
+  const m = $("music");
+
+  m.volume = settings.volume;
+
+  if(
+    settings.music &&
+    !settings.mute &&
+    game.running
+  ){
+
+    m.play().catch(()=>{});
+
+  }
+
+}
+
+function stopGameplayAudio(){
+
+  const y = $("yawa");
+  const m = $("music");
+
+  y.pause();
+  y.currentTime = 0;
+
+  m.pause();
+
+}
+
+function sfx(type){
+
+  if(
+    !settings.sfx ||
+    settings.mute
+  ){
+    return;
+  }
+
+  try{
+
+    const AC =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!AC){
+      return;
+    }
+
+    const ac = new AC();
+
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+
+    const map = {
+
+      click:[420,.07,"square"],
+      select:[600,.09,"sine"],
+      attack:[180,.08,"sawtooth"],
+      hit:[90,.1,"square"],
+      zombie:[70,.18,"sawtooth"],
+      buy:[700,.14,"sine"],
+      level:[500,.25,"triangle"],
+      victory:[900,.35,"sine"],
+      gameover:[110,.5,"sawtooth"],
+      bite:[120,.15,"square"]
+
+    };
+
+    const d =
+      map[type] ||
+      map.click;
+
+    o.frequency.value = d[0];
+    o.type = d[2];
+
+    g.gain.setValueAtTime(
+      .001,
+      ac.currentTime
+    );
+
+    g.gain.exponentialRampToValueAtTime(
+      .15,
+      ac.currentTime+.01
+    );
+
+    g.gain.exponentialRampToValueAtTime(
+      .001,
+      ac.currentTime+d[1]
+    );
+
+    o.connect(g);
+    g.connect(ac.destination);
+
+    o.start();
+
+    o.stop(
+      ac.currentTime+d[1]+.02
+    );
+
+  }catch(e){}
+
+}
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+function introStep(content,time=1200){
+
+  return new Promise(resolve=>{
+
+    const box = $("introItem");
+
+    box.innerHTML = content;
+
+    box.classList.remove("show");
+
+    setTimeout(()=>{
+
+      box.classList.add("show");
+
+      setTimeout(()=>{
+
+        box.classList.remove("show");
+
+        /*
+          2 SECOND BLACK GAP
+          AFTER EVERY FADE OUT
+        */
+
+        setTimeout(
+          resolve,
+          2000
+        );
+
+      },time);
+
+    },100);
+
+  });
+
+}
+
+async function runIntro(){
+
+  await introStep(`
+    <img
+      class="introLogo"
+      src="nihs-logo.png"
+    >
+  `,1500);
+
+  await introStep(`
+    <div class="introTitle">
+      NEW ISRAEL HIGH SCHOOL<br>
+      ZOMBIE APOCALYPSE
+    </div>
+  `,2200);
+
+  await introStep(`
+    <div class="introDeveloper">
+      ANG KANI NGA DULA KAY GIBUHAT NI<br><br>
+      <strong>JOHN REYNARD MIRAS</strong><br><br>
+      SIYA ANG DEVELOPER ANI
+    </div>
+  `,2300);
+
+  await introStep(`
+    <div class="introWarning">
+      TIMANI KINI NGA DULA KAY PANG LINGAW² RA<br>
+      AYAW SERYOSOHA ARON DI KA MAMATAY
+    </div>
+  `,2300);
+
+  await introStep(`
+    <div class="logoBlood">
+      <img
+        class="introLogo"
+        src="nihs-logo.png"
+      >
+    </div>
+
+    <div class="logoName">
+      NIHS ZOMBIE APOCALYPSE
+    </div>
+  `,2200);
+
+  showScreen("startScreen");
+
+}
+
+window.addEventListener(
+  "load",
+  ()=>{
+    setTimeout(
+      runIntro,
+      500
+    );
+  }
+);
+
+/* =========================================================
+   START / HOME
+========================================================= */
+
+function startGame(){
+
+  sfx("click");
+
+  /*
+    Audio unlock happens from
+    the user's button click.
+  */
+
+  try{
+
+    const m = $("music");
+
+    m.volume = settings.volume;
+
+    if(
+      settings.music &&
+      !settings.mute
+    ){
+      m.play().catch(()=>{});
+    }
+
+  }catch(e){}
+
+  showScreen("homeScreen");
+
+}
+
+function openSetup(){
+
+  sfx("click");
+
+  showScreen("setupScreen");
+
+}
+
+function selectSetup(group,value){
+
+  setup[group] = value;
+
+  document
+    .querySelectorAll(
+      `[data-group="${group}"]`
+    )
+    .forEach(b=>{
+      b.classList.toggle(
+        "selected",
+        b.dataset.value === value
+      );
+    });
+
+  sfx("select");
+
+  /*
+    Teacher can still choose
+    Grade 7-12.
+  */
+
+  $("gradeChoices").style.opacity = "1";
+
+}
+
+function openCharacters(){
+
+  if(
+    !setup.role ||
+    !setup.grade ||
+    !setup.gender
+  ){
+
+    alert(
+      "PILI UNA SA ESTUDYANTE/MAGTUTUDLO, GRADE UG GENDER."
+    );
+
+    return;
+  }
+
+  buildCharacterList();
+
+  showScreen(
+    "characterScreen"
+  );
+
+}
+
+function buildCharacterList(){
+
+  let arr = [];
+
+  if(setup.role === "teacher"){
+
+    arr =
+      setup.gender === "male"
+      ? teachers.male
+      : teachers.female;
+
+  }else{
+
+    arr =
+      (
+        characters[setup.grade] ||
+        {}
+      )[setup.gender] || [];
+
+  }
+
+  const list =
+    $("characterList");
+
+  list.innerHTML = "";
+
+  selectedCharacter = null;
+
+  $("selectedCharacterName")
+    .textContent = "PILI UNA";
+
+  $("selectedCharacterType")
+    .textContent = "-";
+
+  arr.forEach((name,i)=>{
+
+    const b =
+      document.createElement("button");
+
+    b.className = "charBtn";
+
+    b.textContent = name;
+
+    b.onclick = ()=>{
+
+      selectedCharacter = {
+
+        name,
+        index:i,
+        role:setup.role,
+        grade:setup.grade,
+        gender:setup.gender
+
+      };
+
+      document
+        .querySelectorAll(".charBtn")
+        .forEach(x=>{
+          x.classList.remove(
+            "selected"
+          );
+        });
+
+      b.classList.add("selected");
+
+      updateCharacterPreview();
+
+      sfx("select");
+
+    };
+
+    list.appendChild(b);
+
+  });
+
+  if(arr.length){
+
+    list.children[0].click();
+
+  }else{
+
+    const empty =
+      document.createElement("div");
+
+    empty.style.color = "#bbb";
+    empty.style.padding = "20px";
+    empty.textContent =
+      "WALA PAY KARAKTER ANI NGA PILI.";
+
+    list.appendChild(empty);
+
+  }
+
+}
+
+/* =========================================================
+   CHARACTER APPEARANCE
+========================================================= */
+
+function hashName(name){
+
+  let h = 0;
+
+  for(
+    let i=0;
+    i<name.length;
+    i++
+  ){
+
+    h =
+      (
+        h*31 +
+        name.charCodeAt(i)
+      ) >>> 0;
+
+  }
+
+  return h;
+
+}
+
+function updateCharacterPreview(){
+
+  if(!selectedCharacter){
+    return;
+  }
+
+  const c =
+    selectedCharacter;
+
+  const preview =
+    $("characterPreview");
+
+  $("selectedCharacterName")
+    .textContent = c.name;
+
+  $("selectedCharacterType")
+    .textContent =
+      c.role === "teacher"
+      ? "MAGTUTUDLO"
+      : "GRADE "+
+        c.grade+
+        " • "+
+        (
+          c.gender === "male"
+          ? "LALAKI"
+          : "BABAYE"
+        );
+
+  const h =
+    hashName(c.name);
+
+  const bodyColors = [
+
+    "#376dff",
+    "#9b35c9",
+    "#238f69",
+    "#d37c24",
+    "#d93f65",
+    "#2675a8",
+    "#6d42c5",
+    "#bd3340"
+
+  ];
+
+  const pantColors = [
+
+    "#222b45",
+    "#333",
+    "#173f5c",
+    "#40325c",
+    "#493b29",
+    "#182f2a"
+
+  ];
+
+  const hairColors = [
+
+    "#171717",
+    "#322016",
+    "#4c2c18",
+    "#252525",
+    "#612d18",
+    "#111"
+
+  ];
+
+  const body =
+    preview.querySelector(
+      ".charBody"
+    );
+
+  const pants =
+    preview.querySelector(
+      ".charPants"
+    );
+
+  const hair =
+    preview.querySelector(
+      ".charHair"
+    );
+
+  const acc =
+    preview.querySelector(
+      ".charAccessory"
+    );
+
+  /*
+    SPECIAL CHARACTERS
+  */
+
+  if(c.name === "Xyhh"){
+
+    body.style.background =
+      "#7b28d2";
+
+  }else if(
+    c.name === "John Reynard"
+  ){
+
+    body.style.background =
+      "#2478dc";
+
+  }else{
+
+    body.style.background =
+      bodyColors[
+        h % bodyColors.length
+      ];
+
+  }
+
+  pants.style.background =
+    pantColors[
+      (h>>3) %
+      pantColors.length
+    ];
+
+  hair.style.background =
+    hairColors[
+      (h>>5) %
+      hairColors.length
+    ];
+
+  preview.classList.remove(
+    "char-glasses",
+    "char-cap"
+  );
+
+  acc.style.cssText = "";
+
+  if(h%5 === 0){
+
+    preview.classList.add(
+      "char-glasses"
+    );
+
+  }
+
+  if(h%7 === 0){
+
+    preview.classList.add(
+      "char-cap"
+    );
+
+  }
+
+  /*
+    Female hair variation
+  */
+
+  if(c.gender === "female"){
+
+    hair.style.width = "112px";
+    hair.style.height = "100px";
+    hair.style.left = "29px";
+    hair.style.borderRadius =
+      "50% 50% 45% 45%";
+
+  }else{
+
+    hair.style.width = "100px";
+    hair.style.height = "85px";
+    hair.style.left = "35px";
+
+  }
+
+}
+
+function openMode(){
+
+  if(!selectedCharacter){
+
+    alert(
+      "PILI UG KARAKTER."
+    );
+
+    return;
+  }
+
+  $("modeCharacterText")
+    .textContent =
+      "NAPILI: "+
+      selectedCharacter.name;
+
+  showScreen(
+    "modeScreen"
+  );
+
+}
+
+function chooseMode(mode){
+
+  selectedMode = mode;
+
+  startActualGame();
+
+}
+
+/* =========================================================
+   SHOP
+========================================================= */
+
+function openShop(){
+
+  renderShop();
+
+  showScreen(
+    "shopScreen"
+  );
+
+}
+
+function renderShop(){
+
+  $("shopCoins")
+    .textContent =
+    saveData.coins;
+
+  const grid =
+    $("shopGrid");
+
+  grid.innerHTML = "";
+
+  weapons.forEach(w=>{
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "shopItem";
+
+    const owned =
+      saveData.owned.includes(
+        w.id
+      );
+
+    const equipped =
+      saveData.equipped === w.id;
+
+    div.innerHTML = `
+
+      <h3>${w.name}</h3>
+
+      <p>Damage: ${w.damage}</p>
+
+      <p>Range: ${w.range}</p>
+
+      <p>Presyo: ${w.price} coins</p>
+
+    `;
+
+    const btn =
+      document.createElement("button");
+
+    btn.className =
+      "btn "+
+      (
+        equipped
+        ? "green"
+        : ""
+      );
+
+    btn.textContent =
+      equipped
+      ? "NA-EQUIP"
+      : owned
+      ? "EQUIP"
+      : "PALIT";
+
+    btn.onclick = ()=>{
+
+      if(equipped){
+        return;
+      }
+
+      if(owned){
+
+        saveData.equipped =
+          w.id;
+
+        save();
+
+        renderShop();
+
+        sfx("select");
+
+        return;
+      }
+
+      if(
+        saveData.coins >=
+        w.price
+      ){
+
+        saveData.coins -=
+          w.price;
+
+        saveData.owned.push(
+          w.id
+        );
+
+        saveData.equipped =
+          w.id;
+
+        save();
+
+        renderShop();
+
+        sfx("buy");
+
+      }else{
+
+        alert(
+          "KULANG ANG IMONG COINS."
+        );
+
+      }
+
+    };
+
+    div.appendChild(btn);
+
+    grid.appendChild(div);
+
+  });
+
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function openSettings(){
+
+  settingsReturnScreen =
+    "homeScreen";
+
+  $("volumeSlider").value =
+    settings.volume;
+
+  updateSettingButtons();
+
+  showScreen(
+    "settingsScreen"
+  );
+
+}
+
+function openSettingsFromPause(){
+
+  settingsReturnScreen =
+    "pauseScreen";
+
+  $("volumeSlider").value =
+    settings.volume;
+
+  updateSettingButtons();
+
+  showScreen(
+    "settingsScreen"
+  );
+
+}
+
+function returnFromSettings(){
+
+  showScreen(
+    settingsReturnScreen
+  );
+
+}
+
+function changeVolume(v){
+
+  settings.volume =
+    parseFloat(v);
+
+  $("music").volume =
+    settings.volume;
+
+  $("yawa").volume =
+    settings.volume;
+
+}
+
+function toggleMusic(){
+
+  settings.music =
+    !settings.music;
+
+  if(
+    settings.music &&
+    !settings.mute &&
+    game.running
+  ){
+
+    unlockAudio();
+
+  }else{
+
+    $("music").pause();
+
+  }
+
+  updateSettingButtons();
+
+}
+
+function toggleSfx(){
+
+  settings.sfx =
+    !settings.sfx;
+
+  updateSettingButtons();
+
+}
+
+function toggleMute(){
+
+  settings.mute =
+    !settings.mute;
+
+  if(settings.mute){
+
+    $("music").pause();
+    $("yawa").pause();
+
+  }else if(
+    settings.music &&
+    game.running
+  ){
+
+    unlockAudio();
+
+  }
+
+  updateSettingButtons();
+
+}
+
+function updateSettingButtons(){
+
+  $("musicBtn")
+    .textContent =
+      "MUSIC: "+
+      (
+        settings.music
+        ? "ON"
+        : "OFF"
+      );
+
+  $("sfxBtn")
+    .textContent =
+      "SFX: "+
+      (
+        settings.sfx
+        ? "ON"
+        : "OFF"
+      );
+
+  $("muteBtn")
+    .textContent =
+      settings.mute
+      ? "UNMUTE"
+      : "MUTE ALL";
+
+}
+
+/* =========================================================
+   GAME START
+========================================================= */
+
+function startActualGame(){
+
+  showScreen(
+    "gameScreen"
+  );
+
+  resizeCanvas();
+
+  game.running = true;
+  game.paused = false;
+
+  game.room = 1;
+
+  game.score = 0;
+  game.coins = 0;
+
+  game.maxHp =
+    selectedMode === "zombie"
+    ? 200
+    : 100;
+
+  game.hp =
+    game.maxHp;
+
+  game.enemies = [];
+  game.particles = [];
+  game.damageTexts = [];
+  game.objects = [];
+
+  game.spawnTimer = 0;
+  game.attackTimer = 0;
+  game.healTimer = 0;
+  game.yawaTimer = 0;
+
+  game.roomCleared = false;
+  game.transitioning = false;
+
+  game.combo = 0;
+  game.lastHit = 0;
+
+  game.videoShowing = false;
+  game.resultSaved = false;
+
+  const equippedIndex =
+    weapons.findIndex(
+      w =>
+        w.id ===
+        saveData.equipped
+    );
+
+  game.weaponIndex =
+    equippedIndex >= 0
+    ? equippedIndex
+    : 0;
+
+  game.player.x =
+    W/2;
+
+  game.player.y =
+    H/2;
+
+  game.player.inv = 0;
+
+  game.player.angle = 0;
+
+  joystick.moveX = 0;
+  joystick.moveY = 0;
+  joystick.attackX = 0;
+  joystick.attackY = 0;
+
+  createRoom(
+    game.room
+  );
+
+  showLevelBanner(
+    "ROOM 1"
+  );
+
+  /*
+    Audio starts only after
+    user interaction.
+  */
+
+  unlockAudio();
+
+  cancelAnimationFrame(
+    animationId
+  );
+
+  lastTime =
+    performance.now();
+
+  animationId =
+    requestAnimationFrame(
+      gameLoop
+    );
+
+}
+
+function restartGame(){
+
+  startActualGame();
+
+}
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+function resizeCanvas(){
+
+  const dpr =
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
+
+  W = innerWidth;
+  H = innerHeight;
+
+  canvas.width =
+    W*dpr;
+
+  canvas.height =
+    H*dpr;
+
+  canvas.style.width =
+    W+"px";
+
+  canvas.style.height =
+    H+"px";
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+}
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+/* =========================================================
+   ROOM CREATION
+========================================================= */
+
+function createRoom(room){
+
+  game.objects = [];
+
+  const wallColors = [
+
+    null,
+    "#382052",
+    "#164c48",
+    "#34475e",
+    "#593c17",
+    "#24182d",
+    "#431b29"
+
+  ];
+
+  const floorColors = [
+
+    null,
+    "#635f72",
+    "#4f6963",
+    "#59616c",
+    "#69543c",
+    "#37313e",
+    "#492b35"
+
+  ];
+
+  game.roomStyle = {
+
+    wall:
+      wallColors[room],
+
+    floor:
+      floorColors[room]
+
+  };
+
+  const count =
+    room === 1 ? 5 :
+    room === 2 ? 7 :
+    room === 3 ? 8 :
+    room === 4 ? 10 :
+    room === 5 ? 11 :
+    13;
+
+  /*
+    ROOM 1
+  */
+
+  if(room === 1){
+
+    for(
+      let x=150;
+      x<W-150;
+      x+=150
+    ){
+
+      for(
+        let y=150;
+        y<H-180;
+        y+=115
+      ){
+
+        addObject(
+          x,
+          y,
+          90,
+          50,
+          "desk"
+        );
+
+      }
+
+    }
+
+    addObject(
+      W*.5,
+      90,
+      150,
+      35,
+      "board"
+    );
+
+    addObject(
+      W*.5,
+      145,
+      90,
+      35,
+      "teacher"
+    );
+
+  /*
+    ROOM 2
+  */
+
+  }else if(room === 2){
+
+    for(
+      let i=0;
+      i<5;
+      i++
+    ){
+
+      addObject(
+        120+i*150,
+        150,
+        100,
+        42,
+        "desk"
+      );
+
+      addObject(
+        170+i*130,
+        H-170,
+        80,
+        45,
+        "cabinet"
+      );
+
+    }
+
+    addObject(
+      W-120,
+      H/2,
+      45,
+      170,
+      "board"
+    );
+
+  /*
+    ROOM 3
+  */
+
+  }else if(room === 3){
+
+    for(
+      let i=0;
+      i<5;
+      i++
+    ){
+
+      addObject(
+        90+i*170,
+        H/2-80,
+        120,
+        35,
+        "locker"
+      );
+
+      addObject(
+        90+i*170,
+        H/2+80,
+        120,
+        35,
+        "bench"
+      );
+
+    }
+
+    addObject(
+      W/2,
+      70,
+      180,
+      30,
+      "sign"
+    );
+
+  /*
+    ROOM 4
+  */
+
+  }else if(room === 4){
+
+    addObject(
+      W/2,
+      95,
+      Math.min(
+        420,
+        W*.6
+      ),
+      80,
+      "stage"
+    );
+
+    for(
+      let i=0;
+      i<4;
+      i++
+    ){
+
+      addObject(
+        120+i*180,
+        H-120,
+        90,
+        40,
+        "eventtable"
+      );
+
+    }
+
+    addObject(
+      80,
+      100,
+      55,
+      150,
+      "banner"
+    );
+
+    addObject(
+      W-80,
+      100,
+      55,
+      150,
+      "banner"
+    );
+
+  /*
+    ROOM 5
+  */
+
+  }else if(room === 5){
+
+    for(
+      let i=0;
+      i<8;
+      i++
+    ){
+
+      let tries = 0;
+
+      let x;
+      let y;
+
+      do{
+
+        x =
+          80 +
+          Math.random()*
+          Math.max(
+            1,
+            W-160
+          );
+
+        y =
+          100 +
+          Math.random()*
+          Math.max(
+            1,
+            H-220
+          );
+
+        tries++;
+
+      }while(
+        blocked(
+          x,
+          y,
+          30
+        ) &&
+        tries<30
+      );
+
+      addObject(
+        x,
+        y,
+        70+
+          Math.random()*50,
+        40,
+        "broken"
+      );
+
+    }
+
+  /*
+    ROOM 6
+  */
+
+  }else if(room === 6){
+
+    addObject(
+      W/2,
+      90,
+      Math.min(
+        500,
+        W*.7
+      ),
+      65,
+      "bossaltar"
+    );
+
+    for(
+      let i=0;
+      i<6;
+      i++
+    ){
+
+      addObject(
+        90+i*150,
+        H-120,
+        100,
+        40,
+        "darkdesk"
+      );
+
+    }
+
+    addObject(
+      W/2,
+      H/2,
+      130,
+      50,
+      "bossarea"
+    );
+
+  }
+
+  /*
+    BORDER COLLISION
+  */
+
+  addObject(
+    W/2,
+    -10,
+    W,
+    20,
+    "wall"
+  );
+
+  addObject(
+    W/2,
+    H+10,
+    W,
+    20,
+    "wall"
+  );
+
+  addObject(
+    -10,
+    H/2,
+    20,
+    H,
+    "wall"
+  );
+
+  addObject(
+    W+10,
+    H/2,
+    20,
+    H,
+    "wall"
+  );
+
+  /*
+    Initial enemies.
+  */
+
+  for(
+    let i=0;
+    i<count;
+    i++
+  ){
+
+    if(
+      Math.random()<.55
+    ){
+
+      spawnEnemy();
+
+    }
+
+  }
+
+  /*
+    Important:
+    Make sure every room starts
+    with at least one enemy.
+  */
+
+  if(
+    game.enemies.length === 0
+  ){
+
+    spawnEnemy();
+
+  }
+
+}
+
+function addObject(
+  x,
+  y,
+  w,
+  h,
+  type
+){
+
+  game.objects.push({
+    x,
+    y,
+    w,
+    h,
+    type
+  });
+
+}
+
+/* =========================================================
+   DRAW ROOM
+========================================================= */
+
+function drawRoom(){
+
+  const s =
+    game.roomStyle;
+
+  ctx.fillStyle =
+    s.floor;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  /*
+    Wall strip
+  */
+
+  ctx.fillStyle =
+    s.wall;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    65
+  );
+
+  /*
+    Floor pattern
+  */
+
+  ctx.globalAlpha = .18;
+
+  ctx.strokeStyle =
+    "#fff";
+
+  for(
+    let x=0;
+    x<W;
+    x+=55
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      65
+    );
+
+    ctx.lineTo(
+      x,
+      H
+    );
+
+    ctx.stroke();
+
+  }
+
+  for(
+    let y=65;
+    y<H;
+    y+=55
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      y
+    );
+
+    ctx.lineTo(
+      W,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+  ctx.globalAlpha = 1;
+
+  /*
+    ROOM ATMOSPHERE
+  */
+
+  ctx.font =
+    "bold 20px Arial";
+
+  if(game.room === 1){
+
+    ctx.fillStyle =
+      "#b7a4cf";
+
+    ctx.fillText(
+      "NEW ISRAEL HIGH SCHOOL • CLASSROOM",
+      20,
+      45
+    );
+
+  }else if(game.room === 2){
+
+    ctx.fillStyle =
+      "#a8e4d3";
+
+    ctx.fillText(
+      "CLASSROOM B • BULLETIN AREA",
+      20,
+      45
+    );
+
+  }else if(game.room === 3){
+
+    ctx.fillStyle =
+      "#b7c8df";
+
+    ctx.fillText(
+      "SCHOOL HALLWAY",
+      20,
+      45
+    );
+
+  }else if(game.room === 4){
+
+    ctx.fillStyle =
+      "#ffe5a2";
+
+    ctx.fillText(
+      "SPECIAL SCHOOL EVENT ROOM",
+      20,
+      45
+    );
+
+  }else if(game.room === 5){
+
+    ctx.fillStyle =
+      "#b58bc8";
+
+    ctx.fillText(
+      "DARK CLASSROOM • DANGER",
+      20,
+      45
+    );
+
+    ctx.fillStyle =
+      "rgba(0,0,0,.28)";
+
+    ctx.fillRect(
+      0,
+      65,
+      W,
+      H-65
+    );
+
+  }else if(game.room === 6){
+
+    ctx.fillStyle =
+      "#ff9b9b";
+
+    ctx.fillText(
+      "FINAL ROOM • BOSS AREA",
+      20,
+      45
+    );
+
+    ctx.fillStyle =
+      "rgba(90,0,0,.22)";
+
+    ctx.fillRect(
+      0,
+      65,
+      W,
+      H-65
+    );
+
+  }
+
+  drawObjects();
+
+}
+
+function drawObjects(){
+
+  game.objects.forEach(o=>{
+
+    if(o.type === "wall"){
+      return;
+    }
+
+    ctx.save();
+
+    ctx.translate(
+      o.x,
+      o.y
+    );
+
+    if(
+      o.type === "desk" ||
+      o.type === "darkdesk"
+    ){
+
+      ctx.fillStyle =
+        o.type === "darkdesk"
+        ? "#211922"
+        : "#794c2d";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.fillStyle =
+        "#b87a45";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        8
+      );
+
+      ctx.strokeStyle =
+        "#2a1710";
+
+      ctx.strokeRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "board"){
+
+      ctx.fillStyle =
+        "#152f2c";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.strokeStyle =
+        "#79552f";
+
+      ctx.lineWidth = 8;
+
+      ctx.strokeRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.fillStyle =
+        "#eee";
+
+      ctx.font =
+        "16px Arial";
+
+      ctx.fillText(
+        "NIHS",
+        -25,
+        5
+      );
+
+    }else if(o.type === "teacher"){
+
+      ctx.fillStyle =
+        "#493021";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.fillStyle =
+        "#c08c59";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        8
+      );
+
+    }else if(o.type === "cabinet"){
+
+      ctx.fillStyle =
+        "#28594e";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.strokeStyle =
+        "#9ad6c8";
+
+      ctx.strokeRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "locker"){
+
+      ctx.fillStyle =
+        "#50647d";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "bench"){
+
+      ctx.fillStyle =
+        "#765136";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "sign"){
+
+      ctx.fillStyle =
+        "#233650";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.fillStyle =
+        "#fff";
+
+      ctx.font =
+        "bold 15px Arial";
+
+      ctx.fillText(
+        "NIHS",
+        -25,
+        5
+      );
+
+    }else if(o.type === "stage"){
+
+      ctx.fillStyle =
+        "#633d77";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.strokeStyle =
+        "#e3bdff";
+
+      ctx.strokeRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "eventtable"){
+
+      ctx.fillStyle =
+        "#9a743f";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "banner"){
+
+      ctx.fillStyle =
+        "#d8a1ff";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "broken"){
+
+      ctx.fillStyle =
+        "#2b222c";
+
+      ctx.rotate(.1);
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.fillStyle =
+        "#5c4963";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        7
+      );
+
+    }else if(o.type === "bossaltar"){
+
+      ctx.fillStyle =
+        "#31101f";
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+      ctx.strokeStyle =
+        "#ff5353";
+
+      ctx.strokeRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+    }else if(o.type === "bossarea"){
+
+      ctx.strokeStyle =
+        "#ff4444";
+
+      ctx.lineWidth = 4;
+
+      ctx.beginPath();
+
+      ctx.arc(
+        0,
+        0,
+        o.w/2,
+        0,
+        Math.PI*2
+      );
+
+      ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+  });
+
+}
+
+/* =========================================================
+   ENEMIES
+========================================================= */
+
+function findSafeEnemyPosition(){
+
+  for(
+    let attempt=0;
+    attempt<50;
+    attempt++
+  ){
+
+    let side =
+      Math.floor(
+        Math.random()*4
+      );
+
+    let x;
+    let y;
+
+    if(side === 0){
+
+      x =
+        30+
+        Math.random()*
+        Math.max(1,W-60);
+
+      y = 90;
+
+    }else if(side === 1){
+
+      x = W-30;
+
+      y =
+        90+
+        Math.random()*
+        Math.max(1,H-120);
+
+    }else if(side === 2){
+
+      x =
+        30+
+        Math.random()*
+        Math.max(1,W-60);
+
+      y = H-30;
+
+    }else{
+
+      x = 30;
+
+      y =
+        90+
+        Math.random()*
+        Math.max(1,H-120);
+
+    }
+
+    if(
+      !blocked(
+        x,
+        y,
+        20
+      )
+    ){
+
+      return {
+        x,
+        y
+      };
+
+    }
+
+  }
+
+  /*
+    Fallback position.
+  */
+
+  return {
+    x:40,
+    y:90
+  };
+
+}
+
+function spawnEnemy(){
+
+  if(
+    !game.running ||
+    game.paused ||
+    game.transitioning ||
+    game.roomCleared
+  ){
+    return;
+  }
+
+  const pos =
+    findSafeEnemyPosition();
+
+  const r =
+    Math.random();
+
+  let type = "normal";
+
+  if(
+    game.room >= 2 &&
+    r < .25
+  ){
+    type = "fast";
+  }
+
+  if(
+    game.room >= 3 &&
+    r < .17
+  ){
+    type = "strong";
+  }
+
+  /*
+    Boss only in Room 6.
+  */
+
+  if(
+    game.room === 6 &&
+    Math.random() < .13
+  ){
+    type = "boss";
+  }
+
+  const data = {
+
+    normal:{
+      hp:
+        30+
+        game.room*7,
+      speed:
+        55+
+        game.room*5,
+      damage:5,
+      r:19,
+      color:"#68ad5c"
+    },
+
+    fast:{
+      hp:
+        22+
+        game.room*6,
+      speed:
+        105+
+        game.room*7,
+      damage:8,
+      r:17,
+      color:"#d0a335"
+    },
+
+    strong:{
+      hp:
+        80+
+        game.room*12,
+      speed:
+        40+
+        game.room*3,
+      damage:10,
+      r:25,
+      color:"#8048a8"
+    },
+
+    boss:{
+      hp:450,
+      speed:38,
+      damage:15,
+      r:43,
+      color:"#a12639"
+    }
+
+  }[type];
+
+  game.enemies.push({
+
+    x:pos.x,
+    y:pos.y,
+
+    type,
+
+    hp:data.hp,
+    maxHp:data.hp,
+
+    speed:data.speed,
+    damage:data.damage,
+
+    r:data.r,
+    color:data.color,
+
+    attack:0,
+    hitFlash:0
+
+  });
+
+}
+
+function drawEnemy(e){
+
+  ctx.save();
+
+  ctx.translate(
+    e.x,
+    e.y
+  );
+
+  if(e.hitFlash > 0){
+
+    ctx.globalAlpha = .65;
+
+  }
+
+  /*
+    Body
+  */
+
+  ctx.fillStyle =
+    e.color;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    e.r,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Head
+  */
+
+  ctx.fillStyle =
+    "#a9d38b";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    -e.r*.65,
+    e.r*.7,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Eyes
+  */
+
+  ctx.fillStyle =
+    "#111";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    -e.r*.25,
+    -e.r*.72,
+    3,
+    0,
+    Math.PI*2
+  );
+
+  ctx.arc(
+    e.r*.25,
+    -e.r*.72,
+    3,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Mouth
+  */
+
+  ctx.strokeStyle =
+    "#222";
+
+  ctx.lineWidth = 3;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -e.r*.25,
+    -e.r*.42
+  );
+
+  ctx.lineTo(
+    e.r*.25,
+    -e.r*.42
+  );
+
+  ctx.stroke();
+
+  if(e.type === "boss"){
+
+    ctx.fillStyle =
+      "#ffcc38";
+
+    ctx.font =
+      "bold 12px Arial";
+
+    ctx.textAlign =
+      "center";
+
+    ctx.fillText(
+      "BOSS",
+      0,
+      -e.r-25
+    );
+
+  }
+
+  ctx.restore();
+
+  /*
+    Health bar
+  */
+
+  const bw =
+    e.r*2.2;
+
+  const bh = 5;
+
+  ctx.fillStyle =
+    "#401010";
+
+  ctx.fillRect(
+    e.x-bw/2,
+    e.y-e.r-12,
+    bw,
+    bh
+  );
+
+  ctx.fillStyle =
+    "#4ce879";
+
+  ctx.fillRect(
+    e.x-bw/2,
+    e.y-e.r-12,
+    bw*
+      Math.max(
+        0,
+        e.hp/e.maxHp
+      ),
+    bh
+  );
+
+}
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+function drawPlayer(){
+
+  const p =
+    game.player;
+
+  ctx.save();
+
+  ctx.translate(
+    p.x,
+    p.y
+  );
+
+  if(
+    p.inv > 0 &&
+    Math.floor(
+      p.inv*20
+    )%2 === 0
+  ){
+
+    ctx.globalAlpha =
+      .45;
+
+  }
+
+  let bodyColor =
+    "#376dff";
+
+  if(selectedCharacter){
+
+    const h =
+      hashName(
+        selectedCharacter.name
+      );
+
+    if(
+      selectedCharacter.name ===
+      "Xyhh"
+    ){
+
+      bodyColor =
+        "#7b28d2";
+
+    }else if(
+      selectedCharacter.name ===
+      "John Reynard"
+    ){
+
+      bodyColor =
+        "#2478dc";
+
+    }else{
+
+      const colors = [
+
+        "#376dff",
+        "#9b35c9",
+        "#238f69",
+        "#d37c24",
+        "#d93f65",
+        "#2675a8"
+
+      ];
+
+      bodyColor =
+        colors[
+          h%colors.length
+        ];
+
+    }
+
+  }
+
+  if(
+    selectedMode ===
+    "zombie"
+  ){
+
+    bodyColor =
+      "#6c9c54";
+
+  }
+
+  /*
+    Shadow
+  */
+
+  ctx.fillStyle =
+    "rgba(0,0,0,.25)";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    24,
+    24,
+    9,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Body
+  */
+
+  ctx.fillStyle =
+    bodyColor;
+
+  ctx.fillRect(
+    -17,
+    -1,
+    34,
+    38
+  );
+
+  /*
+    Head
+  */
+
+  ctx.fillStyle =
+    selectedMode ===
+    "zombie"
+    ? "#91bd70"
+    : "#efb38a";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    -19,
+    19,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Hair
+  */
+
+  ctx.fillStyle =
+    "#202020";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    -28,
+    18,
+    Math.PI,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Eyes
+  */
+
+  ctx.fillStyle =
+    "#111";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    -7,
+    -20,
+    2.5,
+    0,
+    Math.PI*2
+  );
+
+  ctx.arc(
+    7,
+    -20,
+    2.5,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Direction
+  */
+
+  ctx.strokeStyle =
+    "#fff";
+
+  ctx.lineWidth = 3;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    0,
+    0
+  );
+
+  ctx.lineTo(
+    Math.cos(p.angle)*28,
+    Math.sin(p.angle)*28
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   DAMAGE TEXT
+========================================================= */
+
+function particle(
+  x,
+  y,
+  text,
+  life=.5
+){
+
+  game.damageTexts.push({
+
+    x,
+    y,
+    text,
+
+    life,
+    max:life
+
+  });
+
+}
+
+function drawParticles(dt){
+
+  game.damageTexts
+    .forEach(t=>{
+
+      t.life -= dt;
+
+      t.y -=
+        25*dt;
+
+      ctx.globalAlpha =
+        Math.max(
+          0,
+          t.life/t.max
+        );
+
+      ctx.fillStyle =
+        "#fff";
+
+      ctx.font =
+        "bold 16px Arial";
+
+      ctx.textAlign =
+        "center";
+
+      ctx.fillText(
+        t.text,
+        t.x,
+        t.y
+      );
+
+    });
+
+  ctx.globalAlpha = 1;
+
+  game.damageTexts =
+    game.damageTexts.filter(
+      t=>t.life>0
+    );
+
+}
+
+/* =========================================================
+   COLLISION
+========================================================= */
+
+function circleRectCollision(
+  cx,
+  cy,
+  r,
+  o
+){
+
+  const left =
+    o.x-o.w/2;
+
+  const right =
+    o.x+o.w/2;
+
+  const top =
+    o.y-o.h/2;
+
+  const bottom =
+    o.y+o.h/2;
+
+  const x =
+    Math.max(
+      left,
+      Math.min(
+        cx,
+        right
+      )
+    );
+
+  const y =
+    Math.max(
+      top,
+      Math.min(
+        cy,
+        bottom
+      )
+    );
+
+  const dx =
+    cx-x;
+
+  const dy =
+    cy-y;
+
+  return (
+    dx*dx+
+    dy*dy
+  ) < r*r;
+
+}
+
+function blocked(
+  x,
+  y,
+  r
+){
+
+  for(
+    const o of game.objects
+  ){
+
+    if(
+      o.type === "wall"
+    ){
+
+      if(
+        x-r < 0 ||
+        x+r > W ||
+        y-r < 65 ||
+        y+r > H
+      ){
+
+        return true;
+
+      }
+
+    }
+
+    if(
+      circleRectCollision(
+        x,
+        y,
+        r,
+        o
+      )
+    ){
+
+      return true;
+
+    }
+
+  }
+
+  return false;
+
+}
+
+/* =========================================================
+   ATTACK
+========================================================= */
+
+function attack(){
+
+  if(
+    !game.running ||
+    game.paused ||
+    game.transitioning ||
+    game.roomCleared
+  ){
+
+    return;
+
+  }
+
+  if(
+    selectedMode ===
+    "zombie"
+  ){
+
+    zombieAttack();
+
+    return;
+
+  }
+
+  const w =
+    weapons[
+      game.weaponIndex
+    ];
+
+  if(
+    game.attackTimer > 0
+  ){
+
+    return;
+
+  }
+
+  game.attackTimer =
+    w.speed;
+
+  sfx("attack");
+
+  const p =
+    game.player;
+
+  for(
+    let i=0;
+    i<game.enemies.length;
+    i++
+  ){
+
+    const e =
+      game.enemies[i];
+
+    const dx =
+      e.x-p.x;
+
+    const dy =
+      e.y-p.y;
+
+    const dist =
+      Math.hypot(
+        dx,
+        dy
+      );
+
+    if(
+      dist >
+      w.range+e.r
+    ){
+
+      continue;
+
+    }
+
+    const angle =
+      Math.atan2(
+        dy,
+        dx
+      );
+
+    let diff =
+      Math.atan2(
+        Math.sin(
+          angle-p.angle
+        ),
+        Math.cos(
+          angle-p.angle
+        )
+      );
+
+    if(
+      Math.abs(diff)>.9
+    ){
+
+      continue;
+
+    }
+
+    e.hp -=
+      w.damage;
+
+    e.hitFlash =
+      .15;
+
+    /*
+      Small knockback
+    */
+
+    const push =
+      Math.max(
+        0,
+        w.knock
+      );
+
+    if(push>0){
+
+      const len =
+        Math.hypot(
+          dx,
+          dy
+        ) || 1;
+
+      const nx =
+        e.x+
+        dx/len*
+        push;
+
+      const ny =
+        e.y+
+        dy/len*
+        push;
+
+      if(
+        !blocked(
+          nx,
+          e.y,
+          e.r
+        )
+      ){
+
+        e.x = nx;
+
+      }
+
+      if(
+        !blocked(
+          e.x,
+          ny,
+          e.r
+        )
+      ){
+
+        e.y = ny;
+
+      }
+
+    }
+
+    particle(
+      e.x,
+      e.y,
+      "-"+
+      w.damage
+    );
+
+    sfx("hit");
+
+    if(
+      e.hp <= 0
+    ){
+
+      game.score +=
+        10*
+        (
+          game.room+
+          (
+            e.type === "boss"
+            ? 10
+            : 1
+          )
+        );
+
+      game.coins +=
+        e.type === "boss"
+        ? 30
+        : 3;
+
+      if(
+        e.type === "boss"
+      ){
+
+        game.score +=
+          500;
+
+      }
+
+      game.combo++;
+
+      game.enemies.splice(
+        i,
+        1
+      );
+
+      i--;
+
+    }
+
+  }
+
+}
+
+function zombieAttack(){
+
+  if(
+    game.attackTimer > 0
+  ){
+
+    return;
+
+  }
+
+  game.attackTimer =
+    .65;
+
+  sfx("bite");
+
+  const p =
+    game.player;
+
+  let nearest = null;
+  let nd = 75;
+
+  for(
+    const e of game.enemies
+  ){
+
+    const d =
+      Math.hypot(
+        e.x-p.x,
+        e.y-p.y
+      );
+
+    if(d<nd){
+
+      nearest = e;
+      nd = d;
+
+    }
+
+  }
+
+  if(nearest){
+
+    nearest.hp -= 35;
+
+    particle(
+      nearest.x,
+      nearest.y,
+      "BITE"
+    );
+
+    sfx("hit");
+
+    if(
+      nearest.hp <= 0
+    ){
+
+      const index =
+        game.enemies.indexOf(
+          nearest
+        );
+
+      if(index>=0){
+
+        game.enemies.splice(
+          index,
+          1
+        );
+
+      }
+
+      game.score += 25;
+      game.coins += 5;
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   ENEMY ATTACK
+========================================================= */
+
+function enemyAttack(e){
+
+  if(
+    e.attack > 0
+  ){
+
+    return;
+
+  }
+
+  e.attack = .8;
+
+  game.hp -=
+    e.damage;
+
+  game.player.inv =
+    .35;
+
+  particle(
+    game.player.x,
+    game.player.y,
+    "-"+
+    e.damage
+  );
+
+  sfx("zombie");
+
+  if(
+    game.hp <= 0
+  ){
+
+    game.hp = 0;
+
+    endGame(false);
+
+  }
+
+}
+
+/* =========================================================
+   HEALING
+========================================================= */
+
+function updateHealing(dt){
+
+  if(
+    selectedMode !==
+    "human"
+  ){
+
+    return;
+
+  }
+
+  game.healTimer +=
+    dt;
+
+  if(
+    game.healTimer >= 10
+  ){
+
+    /*
+      Preserve remainder
+      instead of resetting
+      completely.
+    */
+
+    game.healTimer -= 10;
+
+    if(
+      game.hp <
+      game.maxHp
+    ){
+
+      game.hp =
+        Math.min(
+          game.maxHp,
+          game.hp+10
+        );
+
+      particle(
+        game.player.x,
+        game.player.y,
+        "+10 HP"
+      );
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   YAWA AUDIO
+========================================================= */
+
+function updateYawa(dt){
+
+  if(
+    !game.running ||
+    game.paused ||
+    game.transitioning ||
+    game.videoShowing
+  ){
+
+    return;
+
+  }
+
+  game.yawaTimer +=
+    dt;
+
+  if(
+    game.yawaTimer >= 3
+  ){
+
+    /*
+      Preserve timer correctly.
+    */
+
+    game.yawaTimer -= 3;
+
+    if(
+      !settings.mute &&
+      settings.sfx
+    ){
+
+      const y =
+        $("yawa");
+
+      y.currentTime = 0;
+
+      y.volume =
+        settings.volume;
+
+      y.play().catch(
+        ()=>{}
+      );
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   ROOM PROGRESSION
+========================================================= */
+
+function checkRoom(){
+
+  if(
+    game.transitioning ||
+    game.videoShowing
+  ){
+
+    return;
+
+  }
+
+  /*
+    Room 6:
+    End directly.
+    endGame() is responsible
+    for the ONE victory video.
+  */
+
+  if(
+    game.room === 6 &&
+    game.enemies.length === 0 &&
+    !game.roomCleared
+  ){
+
+    game.roomCleared = true;
+    game.transitioning = true;
+
+    endGame(true);
+
+    return;
+
+  }
+
+  if(
+    game.enemies.length === 0 &&
+    !game.roomCleared
+  ){
+
+    game.roomCleared = true;
+    game.transitioning = true;
+
+    if(
+      game.room === 4
+    ){
+
+      showVideo(
+        "level4.mp4",
+        "MAAYONG PAGKAPUS SA ROOM 4!",
+        ()=>{
+          nextRoom();
+        }
+      );
+
+    }else{
+
+      setTimeout(
+        ()=>{
+          nextRoom();
+        },
+        1200
+      );
+
+    }
+
+  }
+
+}
+
+function nextRoom(){
+
+  /*
+    If somehow called
+    after Room 6, finish.
+  */
+
+  if(
+    game.room >= 6
+  ){
+
+    endGame(true);
+
+    return;
+
+  }
+
+  game.room++;
+
+  game.roomCleared = false;
+
+  /*
+    IMPORTANT FIX:
+    Video had set paused=true.
+    We must resume the actual
+    game after Room 4 video.
+  */
+
+  game.transitioning = false;
+  game.paused = false;
+  game.videoShowing = false;
+
+  game.spawnTimer = 0;
+  game.yawaTimer = 0;
+
+  game.player.x =
+    W/2;
+
+  game.player.y =
+    H/2;
+
+  game.player.inv =
+    .5;
+
+  createRoom(
+    game.room
+  );
+
+  showScreen(
+    "gameScreen"
+  );
+
+  showLevelBanner(
+    "ROOM "+
+    game.room
+  );
+
+  sfx("level");
+
+  lastTime =
+    performance.now();
+
+  unlockAudio();
+
+}
+
+function showLevelBanner(text){
+
+  const b =
+    $("levelBanner");
+
+  b.textContent =
+    text;
+
+  b.classList.add(
+    "show"
+  );
+
+  setTimeout(
+    ()=>{
+      b.classList.remove(
+        "show"
+      );
+    },
+    1800
+  );
+
+}
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+function gameLoop(now){
+
+  if(
+    !game.running
+  ){
+
+    return;
+
+  }
+
+  animationId =
+    requestAnimationFrame(
+      gameLoop
+    );
+
+  let dt =
+    (now-lastTime)/
+    1000;
+
+  lastTime = now;
+
+  dt =
+    Math.min(
+      dt,
+      .05
+    );
+
+  if(
+    game.paused
+  ){
+
+    return;
+
+  }
+
+  update(dt);
+
+  draw(dt);
+
+}
+
+function update(dt){
+
+  game.attackTimer =
+    Math.max(
+      0,
+      game.attackTimer-dt
+    );
+
+  game.player.inv =
+    Math.max(
+      0,
+      game.player.inv-dt
+    );
+
+  updatePlayer(dt);
+
+  updateEnemies(dt);
+
+  if(
+    !game.running
+  ){
+
+    return;
+
+  }
+
+  updateHealing(dt);
+
+  updateYawa(dt);
+
+  /*
+    Don't spawn during
+    room completion.
+  */
+
+  if(
+    !game.roomCleared &&
+    !game.transitioning
+  ){
+
+    game.spawnTimer +=
+      dt;
+
+    const target =
+      game.room <= 2
+      ? 1.3
+      : game.room <= 4
+      ? 1.0
+      : .8;
+
+    if(
+      game.enemies.length <
+      4+game.room &&
+      game.spawnTimer >
+      target
+    ){
+
+      game.spawnTimer = 0;
+
+      spawnEnemy();
+
+    }
+
+  }
+
+  checkRoom();
+
+  updateHUD();
+
+}
+
+function updatePlayer(dt){
+
+  let vx =
+    joystick.moveX;
+
+  let vy =
+    joystick.moveY;
+
+  const len =
+    Math.hypot(
+      vx,
+      vy
+    );
+
+  if(
+    len > .05
+  ){
+
+    if(len>1){
+
+      vx /= len;
+      vy /= len;
+
+    }
+
+    const speed =
+      game.player.speed;
+
+    const nx =
+      game.player.x+
+      vx*speed*dt;
+
+    const ny =
+      game.player.y+
+      vy*speed*dt;
+
+    if(
+      !blocked(
+        nx,
+        game.player.y,
+        game.player.r
+      )
+    ){
+
+      game.player.x =
+        nx;
+
+    }
+
+    if(
+      !blocked(
+        game.player.x,
+        ny,
+        game.player.r
+      )
+    ){
+
+      game.player.y =
+        ny;
+
+    }
+
+    game.player.angle =
+      Math.atan2(
+        vy,
+        vx
+      );
+
+  }
+
+  if(
+    joystick.attackX !== 0 ||
+    joystick.attackY !== 0
+  ){
+
+    const ax =
+      joystick.attackX;
+
+    const ay =
+      joystick.attackY;
+
+    game.player.angle =
+      Math.atan2(
+        ay,
+        ax
+      );
+
+    attack();
+
+  }
+
+}
+
+function updateEnemies(dt){
+
+  /*
+    Copy reference safely because
+    endGame() can stop the game.
+  */
+
+  for(
+    const e of game.enemies
+  ){
+
+    if(!game.running){
+      break;
+    }
+
+    e.attack =
+      Math.max(
+        0,
+        e.attack-dt
+      );
+
+    e.hitFlash =
+      Math.max(
+        0,
+        e.hitFlash-dt
+      );
+
+    const dx =
+      game.player.x-e.x;
+
+    const dy =
+      game.player.y-e.y;
+
+    const dist =
+      Math.hypot(
+        dx,
+        dy
+      ) || 1;
+
+    if(
+      dist >
+      game.player.r+
+      e.r+
+      5
+    ){
+
+      let nx =
+        e.x+
+        dx/dist*
+        e.speed*dt;
+
+      let ny =
+        e.y+
+        dy/dist*
+        e.speed*dt;
+
+      if(
+        !blocked(
+          nx,
+          e.y,
+          e.r
+        )
+      ){
+
+        e.x =
+          nx;
+
+      }
+
+      if(
+        !blocked(
+          e.x,
+          ny,
+          e.r
+        )
+      ){
+
+        e.y =
+          ny;
+
+      }
+
+    }else{
+
+      enemyAttack(e);
+
+    }
+
+  }
+
+}
+
+function draw(dt){
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  drawRoom();
+
+  game.enemies
+    .forEach(drawEnemy);
+
+  drawPlayer();
+
+  drawParticles(dt);
+
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+
+function updateHUD(){
+
+  $("hpText")
+    .textContent =
+      Math.ceil(
+        game.hp
+      );
+
+  $("hpFill")
+    .style.width =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          game.hp/
+          game.maxHp*
+          100
+        )
+      )+
+      "%";
+
+  $("roomText")
+    .textContent =
+      game.room;
+
+  $("enemyText")
+    .textContent =
+      game.enemies.length;
+
+  $("scoreText")
+    .textContent =
+      game.score;
+
+  $("coinText")
+    .textContent =
+      game.coins;
+
+  $("weaponText")
+    .textContent =
+      selectedMode ===
+      "zombie"
+      ? "BITE"
+      : weapons[
+          game.weaponIndex
+        ].name;
+
+}
+
+/* =========================================================
+   WEAPON SWITCH
+========================================================= */
+
+function switchWeapon(){
+
+  if(
+    selectedMode ===
+    "zombie"
+  ){
+
+    return;
+
+  }
+
+  const owned =
+    weapons.filter(
+      w =>
+        saveData.owned
+          .includes(
+            w.id
+          )
+    );
+
+  if(
+    !owned.length
+  ){
+
+    return;
+
+  }
+
+  let current =
+    owned.findIndex(
+      w =>
+        w.id ===
+        weapons[
+          game.weaponIndex
+        ].id
+    );
+
+  if(current<0){
+    current = 0;
+  }
+
+  current =
+    (
+      current+1
+    ) %
+    owned.length;
+
+  const next =
+    owned[current];
+
+  game.weaponIndex =
+    weapons.findIndex(
+      w =>
+        w.id ===
+        next.id
+    );
+
+  sfx("select");
+
+  updateHUD();
+
+}
+
+function interact(){
+
+  sfx("click");
+
+  if(
+    game.roomCleared &&
+    !game.transitioning
+  ){
+
+    checkRoom();
+
+  }
+
+}
+
+/* =========================================================
+   MOBILE JOYSTICK
+   CORRECTED POINTER SYSTEM
+========================================================= */
+
+const joystick = {
+
+  moveX:0,
+  moveY:0,
+
+  attackX:0,
+  attackY:0
+
+};
+
+function setupJoystick(
+  id,
+  type
+){
+
+  const el =
+    $(id);
+
+  const stick =
+    el.querySelector(
+      ".stick"
+    );
+
+  let active = false;
+  let pointerId = null;
+
+  function point(ev){
+
+    const r =
+      el.getBoundingClientRect();
+
+    let x =
+      ev.clientX -
+      (
+        r.left+
+        r.width/2
+      );
+
+    let y =
+      ev.clientY -
+      (
+        r.top+
+        r.height/2
+      );
+
+    const max =
+      r.width*.32;
+
+    const d =
+      Math.hypot(
+        x,
+        y
+      );
+
+    if(
+      d > max
+    ){
+
+      x =
+        x/d*max;
+
+      y =
+        y/d*max;
+
+    }
+
+    const nx =
+      x/max;
+
+    const ny =
+      y/max;
+
+    stick.style.transform =
+      `translate(${x}px,${y}px)`;
+
+    if(
+      type === "move"
+    ){
+
+      joystick.moveX =
+        nx;
+
+      joystick.moveY =
+        ny;
+
+    }else{
+
+      joystick.attackX =
+        nx;
+
+      joystick.attackY =
+        ny;
+
+    }
+
+  }
+
+  function end(ev){
+
+    if(
+      ev &&
+      pointerId !== null &&
+      ev.pointerId !== pointerId
+    ){
+
+      return;
+
+    }
+
+    active = false;
+    pointerId = null;
+
+    stick.style.transform =
+      "translate(0,0)";
+
+    if(
+      type === "move"
+    ){
+
+      joystick.moveX = 0;
+      joystick.moveY = 0;
+
+    }else{
+
+      joystick.attackX = 0;
+      joystick.attackY = 0;
+
+    }
+
+  }
+
+  el.addEventListener(
+    "pointerdown",
+    ev=>{
+
+      ev.preventDefault();
+
+      if(active){
+        return;
+      }
+
+      active = true;
+      pointerId =
+        ev.pointerId;
+
+      try{
+        el.setPointerCapture(
+          ev.pointerId
+        );
+      }catch(e){}
+
+      point(ev);
+
+    },
+    {
+      passive:false
+    }
+  );
+
+  el.addEventListener(
+    "pointermove",
+    ev=>{
+
+      ev.preventDefault();
+
+      if(
+        active &&
+        ev.pointerId ===
+        pointerId
+      ){
+
+        point(ev);
+
+      }
+
+    },
+    {
+      passive:false
+    }
+  );
+
+  el.addEventListener(
+    "pointerup",
+    ev=>{
+
+      ev.preventDefault();
+
+      end(ev);
+
+    },
+    {
+      passive:false
+    }
+  );
+
+  el.addEventListener(
+    "pointercancel",
+    ev=>{
+
+      end(ev);
+
+    }
+  );
+
+  el.addEventListener(
+    "lostpointercapture",
+    ()=>{
+      if(active){
+        end();
+      }
+    }
+  );
+
+}
+
+setupJoystick(
+  "moveJoy",
+  "move"
+);
+
+setupJoystick(
+  "attackJoy",
+  "attack"
+);
+
+/* =========================================================
+   PAUSE
+========================================================= */
+
+function pauseGame(){
+
+  if(
+    !game.running ||
+    game.transitioning ||
+    game.videoShowing
+  ){
+
+    return;
+
+  }
+
+  game.paused =
+    true;
+
+  $("yawa").pause();
+
+  $("music").pause();
+
+  showScreen(
+    "pauseScreen"
+  );
+
+}
+
+function resumeGame(){
+
+  if(
+    !game.running
+  ){
+
+    return;
+
+  }
+
+  game.paused =
+    false;
+
+  showScreen(
+    "gameScreen"
+  );
+
+  /*
+    Reset timestamp so
+    the game doesn't jump.
+  */
+
+  lastTime =
+    performance.now();
+
+  unlockAudio();
+
+}
+
+function exitGame(){
+
+  if(
+    !game.running
+  ){
+
+    showScreen(
+      "homeScreen"
+    );
+
+    return;
+
+  }
+
+  game.running = false;
+  game.paused = false;
+  game.transitioning = false;
+  game.videoShowing = false;
+
+  cancelAnimationFrame(
+    animationId
+  );
+
+  stopGameplayAudio();
+
+  saveData.coins +=
+    game.coins;
+
+  if(
+    game.score >
+    saveData.bestScore
+  ){
+
+    saveData.bestScore =
+      game.score;
+
+  }
+
+  save();
+
+  game.resultSaved =
+    true;
+
+  showScreen(
+    "homeScreen"
+  );
+
+}
+
+/* =========================================================
+   VIDEO
+   CORRECTED: NO DUPLICATE CALLBACK
+========================================================= */
+
+function showVideo(
+  file,
+  text,
+  callback
+){
+
+  /*
+    Prevent two videos
+    from being opened together.
+  */
+
+  if(
+    game.videoShowing
+  ){
+
+    return;
+
+  }
+
+  game.videoShowing =
+    true;
+
+  game.paused =
+    true;
+
+  $("yawa").pause();
+
+  $("music").pause();
+
+  const vs =
+    $("videoScreen");
+
+  const video =
+    $("gameVideo");
+
+  $("videoText")
+    .textContent =
+      text;
+
+  /*
+    Remove old listeners
+    by replacing the video node
+    event handlers through named
+    functions below.
+  */
+
+  video.pause();
+
+  video.removeAttribute(
+    "src"
+  );
+
+  video.load();
+
+  video.src =
+    file;
+
+  video.currentTime =
+    0;
+
+  showScreen(
+    "videoScreen"
+  );
+
+  let finished = false;
+
+  let fallbackTimer = null;
+
+  function cleanup(){
+
+    video.removeEventListener(
+      "ended",
+      done
+    );
+
+    video.removeEventListener(
+      "error",
+      errorDone
+    );
+
+    if(
+      fallbackTimer !== null
+    ){
+
+      clearTimeout(
+        fallbackTimer
+      );
+
+      fallbackTimer = null;
+
+    }
+
+  }
+
+  function done(){
+
+    if(finished){
+      return;
+    }
+
+    finished = true;
+
+    cleanup();
+
+    video.pause();
+
+    video.currentTime = 0;
+
+    game.videoShowing =
+      false;
+
+    if(callback){
+
+      callback();
+
+    }
+
+  }
+
+  function errorDone(){
+
+    /*
+      Missing/broken video:
+      don't freeze the game.
+    */
+
+    done();
+
+  }
+
+  video.addEventListener(
+    "ended",
+    done
+  );
+
+  video.addEventListener(
+    "error",
+    errorDone
+  );
+
+  /*
+    Give browser enough time to
+    load/play the supplied file.
+  */
+
+  fallbackTimer =
+    setTimeout(
+      ()=>{
+        if(!finished){
+          done();
+        }
+      },
+      8000
+    );
+
+  const playPromise =
+    video.play();
+
+  if(
+    playPromise &&
+    typeof playPromise.catch ===
+    "function"
+  ){
+
+    playPromise.catch(
+      ()=>{
+        /*
+          If autoplay/playback fails,
+          allow the video area to stay
+          briefly, then continue.
+        */
+        fallbackTimer =
+          setTimeout(
+            ()=>{
+              done();
+            },
+            5000
+          );
+      }
+    );
+
+  }
+
+}
+
+/* =========================================================
+   GAME END
+========================================================= */
+
+function endGame(win){
+
+  /*
+    Prevent duplicate end calls.
+  */
+
+  if(
+    !game.running &&
+    !game.videoShowing
+  ){
+
+    return;
+
+  }
+
+  game.running = false;
+  game.paused = false;
+  game.transitioning = true;
+
+  cancelAnimationFrame(
+    animationId
+  );
+
+  stopGameplayAudio();
+
+  /*
+    Save coins and score
+    only once.
+  */
+
+  if(
+    !game.resultSaved
+  ){
+
+    saveData.coins +=
+      game.coins;
+
+    if(
+      game.score >
+      saveData.bestScore
+    ){
+
+      saveData.bestScore =
+        game.score;
+
+    }
+
+    save();
+
+    game.resultSaved =
+      true;
+
+  }
+
+  if(win){
+
+    /*
+      ONLY ONE victory.mp4.
+    */
+
+    showVideo(
+      "victory.mp4",
+      "DAOG KA!",
+      ()=>{
+
+        $("resultTitle")
+          .textContent =
+            "DAOG!";
+
+        $("resultText")
+          .innerHTML =
+
+            "NABUNTAG NIMO ANG 6 KA ROOM!<br><br>"+
+            "SCORE: "+
+            game.score+
+            "<br>COINS: "+
+            game.coins+
+            "<br>BEST SCORE: "+
+            saveData.bestScore;
+
+        sfx("victory");
+
+        game.transitioning =
+          false;
+
+        showScreen(
+          "resultScreen"
+        );
+
+      }
+    );
+
+  }else{
+
+    showVideo(
+      "gameover.mp4",
+      "GAME OVER...",
+      ()=>{
+
+        $("resultTitle")
+          .textContent =
+            "GAME OVER";
+
+        $("resultText")
+          .innerHTML =
+
+            "NAPILDI KA SA ZOMBIE APOCALYPSE.<br><br>"+
+            "SCORE: "+
+            game.score+
+            "<br>COINS: "+
+            game.coins+
+            "<br>BEST SCORE: "+
+            saveData.bestScore;
+
+        sfx("gameover");
+
+        game.transitioning =
+          false;
+
+        showScreen(
+          "resultScreen"
+        );
+
+      }
+    );
+
+  }
+
+}
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+const keys = {};
+
+window.addEventListener(
+  "keydown",
+  e=>{
+
+    keys[
+      e.key.toLowerCase()
+    ] = true;
+
+    if(
+      e.key === " "
+    ){
+
+      e.preventDefault();
+
+      attack();
+
+    }
+
+    if(
+      e.key.toLowerCase() ===
+      "e"
+    ){
+
+      switchWeapon();
+
+    }
+
+    if(
+      e.key === "Escape"
+    ){
+
+      if(
+        game.running &&
+        !game.paused
+      ){
+
+        pauseGame();
+
+      }
+
+    }
+
+  }
+);
+
+window.addEventListener(
+  "keyup",
+  e=>{
+
+    keys[
+      e.key.toLowerCase()
+    ] = false;
+
+  }
+);
+
+/* =========================================================
+   KEYBOARD MOVEMENT
+   CORRECTED:
+   Does not overwrite active
+   joystick movement.
+========================================================= */
+
+setInterval(
+  ()=>{
+
+    if(
+      !game.running ||
+      game.paused ||
+      game.transitioning
+    ){
+
+      return;
+
+    }
+
+    let x = 0;
+    let y = 0;
+
+    if(
+      keys["w"] ||
+      keys["arrowup"]
+    ){
+
+      y--;
+
+    }
+
+    if(
+      keys["s"] ||
+      keys["arrowdown"]
+    ){
+
+      y++;
+
+    }
+
+    if(
+      keys["a"] ||
+      keys["arrowleft"]
+    ){
+
+      x--;
+
+    }
+
+    if(
+      keys["d"] ||
+      keys["arrowright"]
+    ){
+
+      x++;
+
+    }
+
+    /*
+      Keyboard only controls movement
+      when there is an active keyboard
+      direction.
+    */
+
+    if(
+      x ||
+      y
+    ){
+
+      const d =
+        Math.hypot(
+          x,
+          y
+        ) || 1;
+
+      joystick.moveX =
+        x/d;
+
+      joystick.moveY =
+        y/d;
+
+    }
+
+  },
+  30
+);
+
+/* =========================================================
+   PREVENT ACCIDENTAL ZOOM / SCROLL
+========================================================= */
+
+document.addEventListener(
+  "touchmove",
+  e=>{
+
+    if(
+      e.target.closest(
+        ".joystick"
+      ) ||
+      e.target.closest(
+        "#gameCanvas"
+      )
+    ){
+
+      e.preventDefault();
+
+    }
+
+  },
+  {
+    passive:false
+  }
+);
+
+document.addEventListener(
+  "contextmenu",
+  e=>{
+    e.preventDefault();
+  }
+);
+
+/* =========================================================
+   AUDIO DEFAULTS
+========================================================= */
+
+$("music").volume =
+  settings.volume;
+
+$("yawa").volume =
+  settings.volume;
+
+updateSettingButtons();
+
+renderShop();
+
+resizeCanvas();
+
+</script>
+
+</body>
+</html>
